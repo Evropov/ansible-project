@@ -1,0 +1,51 @@
+---
+# tasks file for wordpress
+- name: Downlaod WordPress.
+  get_url:
+    url: https://wordpress.org/latest.tar.gz
+    dest: /tmp/wordpress.tar.gz
+    validate_certs: false
+
+- name: Extract WordPress.
+  unarchive: src=/tmp/wordpress.tar.gz dest=/var/www/ copy=no
+  become: yes
+
+- name: Update default Apache site.
+  become: yes
+  lineinfile:
+    dest=/etc/apache2/sites-enabled/000-default.conf
+    regexp="(.)+DocumentRoot /var/www/html"
+    line="DocumentRoot /var/www/wordpress"
+  notify:
+    - restart apache
+
+- name: Copy sample WordpRess config file.
+  command: mv /var/www/wordpress/wp-config-sample.php /var/www/wordpress/wp-config.php creates=/var/www/wordpress/wp-config.php
+  become: yes
+
+- name: Update WordPress config file.
+  become: yes
+  replace:
+    path: /var/www/wordpress/wp-config.php
+    regexp: "^define\\(\\s*'({{ item.key }})',\\s*'(.*)'\\s*\\);"
+    replace: "define( '{{ item.key }}', '{{ item.value }}' );"
+  with_items:
+    - { key: 'DB_NAME', value: '{{ wp_mysql_db }}' }
+    - { key: 'DB_USER', value: '{{ wp_mysql_user }}' }
+    - { key: 'DB_PASSWORD', value: '{{ wp_mysql_password }}' }
+
+  #lineinfile:
+  #  dest=/var/www/wordpress/wp-config.php
+  #  regexp="{{ item.regexp }}"
+  #  line="{{ item.line }}"
+  #with_items:
+  #  - {'regexp': "define\\(\\s*'DB_NAME',\\s*'([^']+)\\s*'\\);", 'line': "define( 'DB_NAME', '{{wp_mysql_db}}');"}
+  #  - {'regexp': "define\\(\\s*'DB_USER',\\s*'([^']+)\\s*'\\);", 'line': "define( 'DB_USER', '{{wp_mysql_db}}');"}
+  #  - {'regexp': "define\\(\\s*'DB_PASSWORD',\\s*'([^']+)\\s*'\\);", 'line': "define( 'DB_PASSWORD', '{{wp_mysql_db}}');"}
+
+#handlers for WordPress
+- name: Restart Apache.
+  service:
+    name: apache2
+    state: restarted
+  become: yes

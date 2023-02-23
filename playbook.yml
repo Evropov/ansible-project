@@ -1,0 +1,16 @@
+---
+- name: Install and configure WordPress
+  hosts: wordpress
+  gather_facts: False
+  vars:
+    ansible_python_interpreter: /usr/bin/python2
+  
+ # tasks:
+ #   - name: Install Python 2
+ #     raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+
+  roles:
+    - server
+    - php
+    - mysql
+    - wordpress

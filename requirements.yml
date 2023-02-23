@@ -1,0 +1,6 @@
+---
+roles:
+  - name: server
+  - name: php
+  - name: mysql
+  - name: wordpress
