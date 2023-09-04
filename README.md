@@ -15,9 +15,12 @@ To get started, clone the 'ansible-project' repository by running the following 
 ```
 git clone https://github.com/Evropov/ansible-project.git
 ```
-Once the repository has been cloned, navigate to the ansible-project directory:
+Once the repository has been cloned, navigate to the ansible-project directory and switch to the "master" branch:
 ```
 cd ansible-project
+```
+```
+git checkout master
 ```
 The repository contains the following directories and files:
 
